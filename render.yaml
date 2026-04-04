@@ -6,6 +6,7 @@ services:
     plan: free
     rootDir: board-vision-app
     dockerfilePath: Dockerfile
+    healthCheckPath: /health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
@@ -34,6 +35,12 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: GEMINI_API_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: HUGGINGFACE_TOKEN
         sync: false
       - key: JWT_SECRET
         generateValue: true

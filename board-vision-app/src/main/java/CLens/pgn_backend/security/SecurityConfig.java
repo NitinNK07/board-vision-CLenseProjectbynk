@@ -36,14 +36,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow all origins for development
-        config.setAllowedOriginPatterns(List.of("*"));
+        // Allow Vercel frontend and localhost for development
+        config.setAllowedOriginPatterns(List.of(
+            "https://board-vision.vercel.app",
+            "https://*.vercel.app",
+            "http://localhost:*",
+            "http://127.0.0.1:*"
+        ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(Arrays.asList(
-            "X-Total-Count", 
-            "X-Page-Count", 
-            "X-Current-Page", 
+            "X-Total-Count",
+            "X-Page-Count",
+            "X-Current-Page",
             "Authorization",
             "Content-Type"
         ));
@@ -77,7 +82,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public authentication endpoints
                         .requestMatchers("/auth/signup", "/auth/register", "/auth/login", "/auth/refresh").permitAll()
-                        
+
+                        // Health check endpoint (for Render)
+                        .requestMatchers("/health").permitAll()
+
                         // Test and health check endpoints
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
