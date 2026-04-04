@@ -9,6 +9,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
+      - key: DATABASE_URL
+        value: ""
       - key: PGHOST
         fromDatabase:
           name: board-vision-db
