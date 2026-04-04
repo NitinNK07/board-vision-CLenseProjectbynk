@@ -1,10 +1,7 @@
 #!/bin/sh
-# Add jdbc: prefix to DATABASE_URL if not already present
-if [ -n "$DATABASE_URL" ]; then
-    export SPRING_DATASOURCE_URL="jdbc:${DATABASE_URL}"
-    echo "Using database URL: jdbc:postgresql://..."
-    echo "SPRING_DATASOURCE_URL is set"
-fi
+echo "Starting application with database URL fix..."
+echo "DATABASE_URL is set: $(echo $DATABASE_URL | cut -c1-20)..."
 
-# Start the application
-exec java -jar app.jar "$@"
+# Use Java system property to override spring.datasource.url
+# This adds jdbc: prefix to Render's postgresql:// URL
+exec java -Dspring.datasource.url="jdbc:${DATABASE_URL}" -jar app.jar "$@"
