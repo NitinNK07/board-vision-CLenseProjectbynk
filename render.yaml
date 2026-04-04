@@ -1,12 +1,11 @@
 services:
   - type: web
     name: board-vision-backend
-    env: java
+    env: docker
     region: oregon
     plan: free
     rootDir: board-vision-app
-    buildCommand: "./mvnw clean package -DskipTests"
-    startCommand: "java -jar target/pgn-backend-0.0.1-SNAPSHOT.jar"
+    dockerfilePath: Dockerfile
     envVars:
       - key: JAVA_VERSION
         value: 17
