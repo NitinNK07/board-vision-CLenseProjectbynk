@@ -4,6 +4,7 @@ services:
     env: java
     region: oregon
     plan: free
+    rootDir: board-vision-app
     buildCommand: "./mvnw clean package -DskipTests"
     startCommand: "java -jar target/pgn-backend-0.0.1-SNAPSHOT.jar"
     envVars:
