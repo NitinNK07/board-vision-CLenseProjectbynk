@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/stats")
-@CrossOrigin(origins = "*")
+// CORS handled globally by SecurityConfig
 public class PlayerStatsController {
     
     private final PlayerStatisticsService statsService;

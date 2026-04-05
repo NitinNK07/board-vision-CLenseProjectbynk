@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/scan")
-@CrossOrigin(origins = "http://localhost:5173")
+// CORS handled globally by SecurityConfig
 public class VisionScanController {
 
     private final VisionScanService visionService;

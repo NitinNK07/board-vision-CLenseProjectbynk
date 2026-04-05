@@ -20,6 +20,7 @@ import ViewGame from '@/pages/ViewGame';
 import Stats from '@/pages/Stats';
 import Training from '@/pages/Training';
 import About from '@/pages/About';
+import GameById from '@/pages/GameById';
 import Privacy from '@/pages/Privacy';
 import Terms from '@/pages/Terms';
 import { useAuthStore } from '@/store/authStore';
@@ -69,6 +70,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/game/:id" element={<ProtectedRoute><GameById /></ProtectedRoute>} />
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/scan" element={<ProtectedRoute><Scan /></ProtectedRoute>} />
               <Route path="/result" element={<ProtectedRoute><Result /></ProtectedRoute>} />

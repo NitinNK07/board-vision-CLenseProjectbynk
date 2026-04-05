@@ -7,8 +7,9 @@ const TEAM = [
     role: 'AI & Data Science Student | Java Fullstack Developer',
     email: 'nitinkolhe2004@gmail.com',
     phone: '+91 9834778695',
-    linkedin: 'https://linkedin.com/in/nitinkolhe',
-    github: 'https://github.com/nitinkolhe',
+    photo: '/team/nitin.jpeg',
+    linkedin: 'https://www.linkedin.com/in/nitin-n-kolhe-193733270',
+    github: 'https://github.com/NitinNK07',
     portfolio: 'https://frontend-one-hazel-79.vercel.app',
     color: 'from-violet-500 to-purple-600',
     ringColor: 'ring-violet-400',
@@ -52,7 +53,8 @@ const TEAM = [
     role: 'AI & Data Science Student | Backend Developer',
     email: 'abhishekkenjale101@gmail.com',
     phone: '+91 7709718795',
-    linkedin: 'https://linkedin.com/in/abhishek-kenjale',
+    photo: '/team/abhishek.jpeg',
+    linkedin: 'https://www.linkedin.com/in/abhishek-kenjale-97aaa331a/',
     github: 'https://github.com/Abhikenjale',
     portfolio: null,
     color: 'from-cyan-500 to-blue-600',
@@ -74,23 +76,42 @@ const TEAM = [
     bio: 'Engineering student at SPPU Pune with strong Java and backend skills. Aspiring Java developer with interests in AI and Machine Learning.',
   },
   {
-    name: 'Mrunal Satpute',
-    role: 'AI & Data Science Student | Developer',
+    name: 'Mrunal Manoj Satpute',
+    role: 'Data Analytics Student | AI & Data Science',
     email: 'mrunalsatpute16@gmail.com',
-    phone: '',
-    linkedin: 'https://linkedin.com/in/mrunal-satpute',
-    github: 'https://github.com/mrunalsatpute',
+    phone: '+91 9371482101',
+    photo: '/team/mrunal.jpeg',
+    linkedin: 'https://www.linkedin.com/in/mrunal-satpute-060195260/',
+    github: null,
     portfolio: null,
     color: 'from-emerald-500 to-teal-600',
     ringColor: 'ring-emerald-400',
     education: [
-      { inst: 'Savitribai Phule Pune University', degree: 'B.E. AI & Data Science', grade: '', year: '2022–2026' },
+      { inst: 'Savitribai Phule Pune University', degree: 'B.E. AI & Data Science', grade: 'Final Year SGPA: 8.45', year: '2022–2026' },
     ],
-    experience: [],
-    skills: {},
+    experience: [
+      {
+        title: 'Data Science Intern',
+        company: 'NewAI Labs',
+        period: '1 Month',
+        points: [
+          'Worked on data cleaning, analysis, and visualization using Python',
+          'Generated insights from real-world datasets',
+        ],
+      },
+    ],
+    skills: {
+      'Languages': ['Python', 'SQL'],
+      'Tools': ['Excel', 'Power BI', 'Tableau'],
+      'Libraries': ['Pandas', 'NumPy', 'Matplotlib'],
+      'Database': ['MySQL'],
+      'Other': ['Data Cleaning', 'Data Visualization', 'EDA (Exploratory Data Analysis)'],
+    },
     achievements: [],
-    projects: [],
-    bio: 'AI & Data Science student contributing to the CLens platform. Passionate about building innovative tech solutions.',
+    projects: [
+      { name: 'Weather Data Analysis', desc: 'Analyzed weather data using Python, generating visualizations and key statistics to identify trends' },
+    ],
+    bio: 'Motivated and detail-oriented Data Analytics student with strong knowledge of data visualization, statistical analysis, and tools like Excel, SQL, and Python. Passionate about transforming raw data into meaningful insights to support decision-making.',
   },
 ];
 
@@ -121,8 +142,23 @@ const TeamCard = ({ member, index }) => {
         {/* Profile photo circle */}
         <div className="flex justify-center -mt-14 relative z-10">
           <div className={`w-28 h-28 rounded-full bg-gradient-to-br ${member.color} ring-4 ${member.ringColor} ring-offset-2 ring-offset-white dark:ring-offset-gray-900 flex items-center justify-center shadow-xl overflow-hidden`}>
-            {/* Placeholder — replace with <img src={member.photo} /> later */}
-            <span className="text-white text-3xl font-bold select-none">{initials}</span>
+            {member.photo ? (
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <span
+              className="text-white text-3xl font-bold select-none items-center justify-center"
+              style={{ display: member.photo ? 'none' : 'flex', width: '100%', height: '100%' }}
+            >
+              {initials}
+            </span>
           </div>
         </div>
 

@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/analysis")
-@CrossOrigin(origins = "*")
+// CORS handled globally by SecurityConfig — do NOT add @CrossOrigin here
 public class AnalysisController {
     
     private final StockfishAnalysisService analysisService;

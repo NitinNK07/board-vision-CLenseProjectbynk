@@ -10,7 +10,7 @@ import CLens.pgn_backend.enums.Role;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin // Allow all origins for testing
+// CORS handled globally by SecurityConfig
 @RequestMapping("/test")
 public class TestController {
 

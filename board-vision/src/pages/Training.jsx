@@ -27,9 +27,9 @@ const PUZZLES = [
   },
   {
     id: 3,
-    fen: '4k3/8/8/8/8/8/4K3/4Q3 w - - 0 1',
-    solution: ['Qe7#'],
-    description: 'Queen + King deliver checkmate',
+    fen: 'k7/8/1K6/8/8/8/8/Q7 w - - 0 1',
+    solution: ['Qa7#'],
+    description: 'Queen + King deliver checkmate in the corner',
     difficulty: 'Beginner',
     title: 'Queen Mate',
     color: 'White'

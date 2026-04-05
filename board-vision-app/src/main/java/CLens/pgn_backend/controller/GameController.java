@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/games")
-@CrossOrigin(origins = "http://localhost:5173")
+// CORS handled globally by SecurityConfig
 public class GameController {
 
     private final ChessGameService gameService;

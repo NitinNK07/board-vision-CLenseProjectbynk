@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/fide")
-@CrossOrigin(origins = "http://localhost:5173")
+// CORS handled globally by SecurityConfig
 public class FideController {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
