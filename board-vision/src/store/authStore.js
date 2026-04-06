@@ -18,7 +18,7 @@ const useAuthStore = create(
 
       login: async (email, password) => {
         const response = await authAPI.login(email, password);
-        const token = response.data.token;
+        const token = response.data.accessToken;
         if (token) {
           get().setToken(token);
           const userResponse = await authAPI.getMe();
@@ -29,7 +29,7 @@ const useAuthStore = create(
 
       signup: async (data) => {
         const response = await authAPI.signup(data);
-        const token = response.data.token;
+        const token = response.data.accessToken;
         if (token) {
           get().setToken(token);
           const userResponse = await authAPI.getMe();
