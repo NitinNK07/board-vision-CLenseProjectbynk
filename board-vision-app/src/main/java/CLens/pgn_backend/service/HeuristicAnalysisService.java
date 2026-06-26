@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * Lichess Cloud Eval API is free, no auth required, ~1 req/sec rate limit.
  */
 @Service
-public class StockfishAnalysisService {
+public class HeuristicAnalysisService {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private static final String LICHESS_EVAL_URL = "https://lichess.org/api/cloud-eval";
@@ -47,6 +47,9 @@ public class StockfishAnalysisService {
     /**
      * Analyze a PGN game and return detailed analysis with real evaluations.
      * Uses pattern-based heuristic analysis — deterministic (same PGN = same result).
+     */
+    /**
+     * Executes the analyzeGame operation.
      */
     public GameAnalysisDTO analyzeGame(String pgn) {
         GameAnalysisDTO analysis = new GameAnalysisDTO();
@@ -395,6 +398,9 @@ public class StockfishAnalysisService {
     /**
      * Extract moves from PGN string
      */
+    /**
+     * Executes the extractMoves operation.
+     */
     public List<String> extractMoves(String pgn) {
         List<String> moves = new ArrayList<>();
         if (pgn == null || pgn.isBlank()) return moves;
@@ -530,6 +536,9 @@ public class StockfishAnalysisService {
 
     /**
      * Parse evaluation data from stored JSON
+     */
+    /**
+     * Executes the parseEvaluationDataJson operation.
      */
     public List<MoveEvaluation> parseEvaluationDataJson(String json) {
         List<MoveEvaluation> evaluations = new ArrayList<>();

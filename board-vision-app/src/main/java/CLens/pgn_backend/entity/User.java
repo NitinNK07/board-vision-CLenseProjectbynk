@@ -8,6 +8,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 // User.java
+/**
+ * Enterprise implementation of User.
+ * Provides core functionality and business logic.
+ */
 @Entity
 @Table(name = "users")
 @Getter

@@ -5,6 +5,7 @@ import CLens.pgn_backend.repository.UserRepository;
 import CLens.pgn_backend.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class ScanService {
     }
 
     /** Public helper for UI to show remaining allowances */
+    @Transactional(readOnly = true)
     public Allowance getAllowance(User u) {
         normalizeUserTrialCounters(u);
 
@@ -41,6 +43,10 @@ public class ScanService {
     }
 
     /** Deduct one scan with priority: trialToday → adCredits → paidCredits */
+    /**
+     * Executes the consumeOne operation.
+     */
+    @Transactional
     public void consumeOne(User u) {
         normalizeUserTrialCounters(u);
 
@@ -62,6 +68,10 @@ public class ScanService {
     }
 
     /** Grant ad credits (Watch Ad → +1 scan by default) */
+    /**
+     * Executes the grantAd operation.
+     */
+    @Transactional
     public Allowance grantAd(User u, int count) {
         if (count <= 0) {
             throw new IllegalArgumentException("Credit count must be positive");
@@ -72,6 +82,10 @@ public class ScanService {
     }
 
     /** Grant paid pack credits (50/100/200/500 etc.) */
+    /**
+     * Executes the grantPack operation.
+     */
+    @Transactional
     public void grantPack(User u, int count) {
         if (count <= 0) {
             throw new IllegalArgumentException("Credit count must be positive");

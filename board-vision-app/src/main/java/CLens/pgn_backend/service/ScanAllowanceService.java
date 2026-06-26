@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Optional;
 
+/**
+ * Enterprise implementation of ScanAllowanceService.
+ * Provides core functionality and business logic.
+ */
 @Service
 @RequiredArgsConstructor
 public class ScanAllowanceService {
@@ -38,6 +42,12 @@ public class ScanAllowanceService {
         return new Allowance(trialRemainingToday, ad, paid, total);
     }
 
+    /**
+
+     * Executes the consumeOne operation.
+
+     */
+
     public void consumeOne(User u) {
         Allowance a = getAllowance(u);
         if (a.totalAvailable() <= 0) throw new IllegalStateException("No scans available");
@@ -52,10 +62,22 @@ public class ScanAllowanceService {
         users.save(u);
     }
 
+    /**
+
+     * Executes the grantAdCredit operation.
+
+     */
+
     public void grantAdCredit(User u, int count) {
         u.setAdScanCredits(Optional.ofNullable(u.getAdScanCredits()).orElse(0) + count);
         users.save(u);
     }
+
+    /**
+
+     * Executes the grantPack operation.
+
+     */
 
     public void grantPack(User u, int count) {
         u.setPaidScanCredits(Optional.ofNullable(u.getPaidScanCredits()).orElse(0) + count);

@@ -34,6 +34,12 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+
+     * Executes the signup operation.
+
+     */
+
     @Transactional
     public User signup(String name, String email, String password, Role role, String phoneNumber) {
         // Validate name
@@ -85,6 +91,12 @@ public class UserService {
         return userRepo.save(u);
     }
 
+    /**
+
+     * Executes the login operation.
+
+     */
+
     @Transactional(readOnly = true)
     public User login(String email, String password) {
         User u = userRepo.findByEmail(email.toLowerCase().trim())
@@ -96,6 +108,12 @@ public class UserService {
 
         return u;
     }
+
+    /**
+
+     * Executes the findByEmail operation.
+
+     */
 
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
@@ -119,6 +137,12 @@ public class UserService {
         return phoneNumber.matches("^\\+[1-9]\\d{1,14}$");
     }
 
+    /**
+
+     * Executes the updateUser operation.
+
+     */
+
     @Transactional
     public void updateUser(User user) {
         if (user == null) {
@@ -126,6 +150,12 @@ public class UserService {
         }
         userRepo.save(user);
     }
+
+    /**
+
+     * Executes the verifyEmail operation.
+
+     */
 
     @Transactional
     public boolean verifyEmail(String email) {
@@ -138,6 +168,12 @@ public class UserService {
         return false;
     }
 
+    /**
+
+     * Executes the verifyPhone operation.
+
+     */
+
     @Transactional
     public boolean verifyPhone(String phoneNumber) {
         User user = userRepo.findByPhoneNumber(phoneNumber).orElse(null);
@@ -148,6 +184,12 @@ public class UserService {
         }
         return false;
     }
+
+    /**
+
+     * Executes the findByEmailOrPhone operation.
+
+     */
 
     @Transactional(readOnly = true)
     public User findByEmailOrPhone(String email, String phoneNumber) {
@@ -162,6 +204,9 @@ public class UserService {
     /**
      * Check if user exists by email
      */
+    /**
+     * Executes the existsByEmail operation.
+     */
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userRepo.findByEmail(email.toLowerCase().trim()).isPresent();
@@ -169,6 +214,9 @@ public class UserService {
     
     /**
      * Check if user exists by phone number
+     */
+    /**
+     * Executes the existsByPhoneNumber operation.
      */
     @Transactional(readOnly = true)
     public boolean existsByPhoneNumber(String phoneNumber) {

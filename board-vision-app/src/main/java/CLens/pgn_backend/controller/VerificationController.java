@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Enterprise implementation of VerificationController.
+ * Provides core functionality and business logic.
+ */
 @RestController
 @RequestMapping("/verification")
 public class VerificationController {
@@ -56,6 +60,12 @@ public class VerificationController {
             ));
         }
     }
+
+    /**
+
+     * Executes the verifyPhone operation.
+
+     */
 
     @PostMapping("/verify-phone")
     public String verifyPhone(@RequestParam String phoneNumber, @RequestParam String otp) {

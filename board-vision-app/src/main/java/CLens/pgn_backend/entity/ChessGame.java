@@ -83,6 +83,12 @@ public class ChessGame {
     @Column(name = "original_image_url", length = 500)
     private String originalImageUrl;
     
+    @Column(name = "validation_passed")
+    private Boolean validationPassed;
+    
+    @Column(name = "validation_errors", columnDefinition = "TEXT")
+    private String validationErrors; // JSON string of MoveError list
+    
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
     

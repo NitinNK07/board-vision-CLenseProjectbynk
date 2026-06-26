@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * Enterprise implementation of HealthController.
+ * Provides core functionality and business logic.
+ */
 @RestController
 public class HealthController {
 

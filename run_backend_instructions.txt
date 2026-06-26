@@ -1,0 +1,21 @@
+To run the CLens backend successfully:
+
+1. Install Tesseract OCR on your Windows system:
+   - Download from: https://github.com/UB-Mannheim/tesseract/wiki
+   - Choose the installer for Windows
+   - Install to default location (C:/Program Files/Tesseract-OCR/)
+
+2. Or set up the tessdata in your local project:
+   - Make sure you have eng.traineddata in: src/main/resources/tessdata/
+
+3. To run the application:
+   - Make sure you have JDK 17 installed
+   - If you have Maven installed: cd pgn-backend && mvn spring-boot:run
+   - If not, you can run it from an IDE like IntelliJ or Eclipse
+
+4. The OCR should now work better with the configuration updates made to:
+   - TesseractConfig.java - handles resource loading properly
+   - OcrService.java - improved error handling
+   - Application.java - simplified startup
+
+The main issue was the Tesseract native libraries and data files not being found. Now the system will try multiple paths including the common Windows installation paths.

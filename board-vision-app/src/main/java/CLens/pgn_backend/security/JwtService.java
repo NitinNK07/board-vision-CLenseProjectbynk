@@ -41,6 +41,9 @@ public class JwtService {
     /**
      * Generate access token with default expiration
      */
+    /**
+     * Executes the generateToken operation.
+     */
     public String generateToken(String subject, Map<String, Object> claims) {
         return generateToken(subject, claims, null, false);
     }
@@ -48,12 +51,18 @@ public class JwtService {
     /**
      * Generate access token with custom expiration
      */
+    /**
+     * Executes the generateToken operation.
+     */
     public String generateToken(String subject, Map<String, Object> claims, Long minutes) {
         return generateToken(subject, claims, minutes, false);
     }
     
     /**
      * Generate refresh token
+     */
+    /**
+     * Executes the generateRefreshToken operation.
      */
     public String generateRefreshToken(String subject) {
         return generateToken(subject, Map.of("type", "refresh"), jwtRefreshExpirationInMinutes, true);
@@ -65,6 +74,9 @@ public class JwtService {
      * @param claims additional claims to include
      * @param minutes expiration time in minutes (uses default if null)
      * @param isRefreshToken true if this is a refresh token
+     */
+    /**
+     * Executes the generateToken operation.
      */
     public String generateToken(String subject, Map<String, Object> claims, Long minutes, boolean isRefreshToken) {
         long expirationMinutes = minutes != null ? minutes :
@@ -96,6 +108,9 @@ public class JwtService {
     /**
      * Extract subject (email) from token
      */
+    /**
+     * Executes the extractSubject operation.
+     */
     public String extractSubject(String jwt) {
         return Jwts.parserBuilder().setSigningKey(key()).build()
                 .parseClaimsJws(jwt).getBody().getSubject();
@@ -103,6 +118,9 @@ public class JwtService {
 
     /**
      * Validate token (checks signature and expiration)
+     */
+    /**
+     * Executes the isValid operation.
      */
     public boolean isValid(String jwt) {
         try {
@@ -115,6 +133,9 @@ public class JwtService {
     
     /**
      * Check if token is expired
+     */
+    /**
+     * Executes the isExpired operation.
      */
     public boolean isExpired(String jwt) {
         try {
@@ -141,6 +162,9 @@ public class JwtService {
 
     /**
      * Extract all claims from token
+     */
+    /**
+     * Executes the extractAllClaims operation.
      */
     public Claims extractAllClaims(String jwt) {
         return Jwts.parserBuilder()

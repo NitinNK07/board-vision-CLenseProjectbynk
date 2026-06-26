@@ -8,6 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 
+/**
+ * Enterprise implementation of SignupRequest.
+ * Provides core functionality and business logic.
+ */
 public record SignupRequest(
         @NotBlank(message = "Name cannot be blank")
         @Size(min = 2, max = 50, message = "Name should be between 2 and 50 characters")

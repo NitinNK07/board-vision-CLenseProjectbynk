@@ -136,6 +136,9 @@ public class GameController {
     /**
      * Search games with filters
      */
+    /**
+     * Executes the searchGames operation.
+     */
     @PostMapping("/search")
     public ResponseEntity<Page<ChessGame>> searchGames(@RequestBody GameSearchDTO search) {
         User user = getCurrentUser();
@@ -167,6 +170,9 @@ public class GameController {
     /**
      * Update game visibility (public/private)
      */
+    /**
+     * Executes the updateVisibility operation.
+     */
     @PatchMapping("/{gameId}/visibility")
     public ResponseEntity<ChessGame> updateVisibility(
             @PathVariable Long gameId,
@@ -177,6 +183,9 @@ public class GameController {
 
     /**
      * Delete a game
+     */
+    /**
+     * Executes the deleteGame operation.
      */
     @DeleteMapping("/{gameId}")
     public ResponseEntity<Void> deleteGame(@PathVariable Long gameId) {

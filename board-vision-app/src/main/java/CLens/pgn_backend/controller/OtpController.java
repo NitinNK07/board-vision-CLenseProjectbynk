@@ -12,6 +12,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Enterprise implementation of OtpController.
+ * Provides core functionality and business logic.
+ */
 @RestController
 @RequestMapping("/otp")
 public class OtpController {
@@ -23,6 +27,12 @@ public class OtpController {
         this.otpService = otpService;
         this.userService = userService;
     }
+
+    /**
+
+     * Executes the requestOtp operation.
+
+     */
 
     @PostMapping("/request")
     public ResponseEntity<String> requestOtp(@Valid @RequestBody OtpRequest request) {
@@ -37,6 +47,12 @@ public class OtpController {
 
         return ResponseEntity.ok("OTP sent successfully");
     }
+
+    /**
+
+     * Executes the verifyOtp operation.
+
+     */
 
     @PostMapping("/verify")
     public ResponseEntity<String> verifyOtp(@Valid @RequestBody OtpRequest request, @RequestParam String otp) {

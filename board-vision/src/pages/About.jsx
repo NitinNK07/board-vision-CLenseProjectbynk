@@ -121,10 +121,10 @@ const TeamCard = ({ member, index }) => {
 
   return (
     <div
-      className="group relative"
+      className="group relative h-full"
       style={{ animationDelay: `${index * 150}ms` }}
     >
-      <div className="card overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+      <div className="card overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
         {/* Gradient header band */}
         <div className={`h-28 bg-gradient-to-r ${member.color} relative overflow-hidden`}>
           <div className="absolute inset-0 opacity-20">
@@ -163,7 +163,7 @@ const TeamCard = ({ member, index }) => {
         </div>
 
         {/* Info */}
-        <div className="text-center px-5 pt-4 pb-2">
+        <div className="text-center px-5 pt-4 pb-2 flex-grow">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">{member.name}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{member.role}</p>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 leading-relaxed">{member.bio}</p>

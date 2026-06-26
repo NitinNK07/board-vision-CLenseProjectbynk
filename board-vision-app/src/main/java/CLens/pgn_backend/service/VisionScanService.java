@@ -1,5 +1,7 @@
 package CLens.pgn_backend.service;
 
+import CLens.pgn_backend.exceptionHandler.OcrException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import java.util.regex.Pattern;
  *
  * Groq Free Tier: 30 req/min, 14400 req/day — best free option!
  */
+@Slf4j
 @Service
 public class VisionScanService {
 
@@ -66,8 +69,13 @@ public class VisionScanService {
     private static final String CHESS_SCORESHEET_PROMPT =
         "You are an expert chess scoresheet reader and OCR specialist.\n\n" +
         "TASK: Read this chess scoresheet image and extract ALL moves in standard algebraic notation (SAN).\n\n" +
+        "CRITICAL LAYOUT INSTRUCTION:\n" +
+        "Standard chess scoresheets are divided into TWO separate columns (left and right).\n" +
+        "- Column 1 (Left side) usually contains moves 1-20 or 1-30.\n" +
+        "- Column 2 (Right side) continues the game with moves 21-40 or 31-60.\n" +
+        "YOU MUST READ BOTH COLUMNS COMPLETELY. Do NOT stop reading after the left column ends! Look at the right side of the page and continue extracting moves until the very end of the game.\n\n" +
         "IMPORTANT RULES:\n" +
-        "1. Read EVERY move carefully - both White and Black columns, from move 1 to the last move.\n" +
+        "1. Read EVERY move carefully - both White and Black columns.\n" +
         "2. Output moves in standard algebraic notation (SAN), NOT descriptive notation.\n" +
         "   - If the scoresheet uses DESCRIPTIVE notation (e.g., P-K4, N-KB3, PxP), convert to SAN (e.g., e4, Nf3, exd5).\n" +
         "3. Piece symbols: K=King, Q=Queen, R=Rook, B=Bishop, N=Knight. Pawns have no symbol.\n" +
@@ -81,8 +89,15 @@ public class VisionScanService {
         "   - 'S' might be '5'\n" +
         "   - 'B' might be '8' in move numbers\n" +
         "   - Smudged or crossed-out moves - try to read the correction\n\n" +
-        "ALSO EXTRACT if visible:\n" +
-        "- Event name, Date, White player, Black player, Result (1-0, 0-1, 1/2-1/2, or *), Round\n\n" +
+        "METADATA EXTRACTION (DO NOT HALLUCINATE OR INVENT DATES):\n" +
+        "Only extract Event name, Date, White player, Black player, Result, and Round if they are CLEARLY VISIBLE. If a value is missing or unreadable, leave it as '?'.\n\n" +
+        "CRITICAL ANTI-HALLUCINATION RULES:\n" +
+        "You are a pure TRANSCRIBER, not a chess player.\n" +
+        "1. DO NOT INFER OR CONTINUE A GAME.\n" +
+        "2. If a move is not clearly visible or is blank, write '?'.\n" +
+        "3. NEVER invent move numbers. If the sheet ends at move 38, your output MUST end at move 38.\n" +
+        "4. NEVER invent missing moves.\n" +
+        "5. NEVER invent player names or dates.\n\n" +
         "OUTPUT FORMAT (strict PGN only):\n" +
         "[Event \"Tournament Name\"]\n" +
         "[Site \"Location\"]\n" +
@@ -92,7 +107,7 @@ public class VisionScanService {
         "[Black \"Player2\"]\n" +
         "[Result \"1-0\"]\n\n" +
         "1. e4 c5 2. Nf3 d6 1-0\n\n" +
-        "If you cannot read a move with confidence, use chess knowledge to infer the most likely legal move.\n" +
+        "Verify that the final move number in your output matches the highest visible move number on the sheet.\n" +
         "Do NOT include any explanation text - output ONLY the PGN.";
 
     // ================================================================
@@ -102,10 +117,13 @@ public class VisionScanService {
     /**
      * Extract chess data from uploaded image file (MultipartFile)
      */
+    /**
+     * Executes the extractFENFromImage operation.
+     */
     public String extractFENFromImage(org.springframework.web.multipart.MultipartFile imageFile) {
-        System.out.println("========== VISION SCAN STARTED ==========");
-        System.out.println("\uD83D\uDCF8 File: " + imageFile.getOriginalFilename());
-        System.out.println("\uD83D\uDCCA Size: " + imageFile.getSize() + " bytes");
+        log.info("========== VISION SCAN STARTED ==========");
+        log.info("\uD83D\uDCF8 File: {}", imageFile.getOriginalFilename());
+        log.info("\uD83D\uDCCA Size: {} bytes", imageFile.getSize());
 
         try {
             Path tempFile = Files.createTempFile("chess-scan-", "." + getFileExtension(imageFile.getOriginalFilename()));
@@ -120,35 +138,36 @@ public class VisionScanService {
             Files.deleteIfExists(tempFile);
 
             if (result != null && !result.isEmpty()) {
-                System.out.println("\u2705 Vision scan successful!");
-                System.out.println("========== VISION SCAN COMPLETE ==========");
+                log.info("\u2705 Vision scan successful!");
+                log.info("========== VISION SCAN COMPLETE ==========");
                 return result;
             }
         } catch (Exception e) {
-            System.err.println("\u274C Vision scan error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("\u274C Vision scan error", e);
         }
 
-        System.out.println("\u26A0\uFE0F All providers failed, using fallback PGN");
-        System.out.println("========== VISION SCAN FAILED ==========");
-        return generateFallbackPGN();
+        log.error("\u274C All providers failed — throwing OcrException");
+        log.error("========== VISION SCAN FAILED ==========");
+        throw new OcrException("All OCR providers failed. Please check your API keys and try again.");
     }
 
     /**
      * Extract from base64 string (legacy API compatibility)
      */
+    /**
+     * Executes the extractFENFromImage operation.
+     */
     public String extractFENFromImage(String base64Image) {
-        System.out.println("========== VISION SCAN STARTED (Base64) ==========");
+        log.info("========== VISION SCAN STARTED (Base64) ==========");
 
         String result = tryAllProviders(base64Image, "image/jpeg");
 
         if (result != null && !result.isEmpty()) {
-            System.out.println("\u2705 Extracted: " + result.substring(0, Math.min(200, result.length())));
+            log.info("\u2705 Extracted: {}", result.substring(0, Math.min(200, result.length())));
             return result;
         }
 
-        System.out.println("\u26A0\uFE0F Using fallback PGN");
-        return generateFallbackPGN();
+        throw new OcrException("All OCR providers failed to extract chess data from the image.");
     }
 
     /**
@@ -157,21 +176,21 @@ public class VisionScanService {
     private String tryAllProviders(String base64Image, String mimeType) {
         // 1. Try Groq (FREE, no billing needed)
         if (groqApiKey != null && !groqApiKey.isBlank()) {
-            System.out.println("\uD83D\uDE80 Trying Groq API (primary - free)...");
+            log.info("\uD83D\uDE80 Trying Groq API (primary - free)...");
             String result = callGroqVision(base64Image, mimeType);
             if (result != null && !result.isEmpty()) return result;
         }
 
         // 2. Try Gemini
         if (geminiApiKey != null && !geminiApiKey.isBlank()) {
-            System.out.println("\uD83D\uDD04 Trying Gemini API...");
+            log.info("\uD83D\uDD04 Trying Gemini API...");
             String result = callGeminiVision(base64Image, mimeType);
             if (result != null && !result.isEmpty()) return result;
         }
 
         // 3. Try HuggingFace
         if (huggingFaceToken != null && !huggingFaceToken.isBlank()) {
-            System.out.println("\uD83D\uDD04 Trying HuggingFace API (fallback)...");
+            log.info("\uD83D\uDD04 Trying HuggingFace API (fallback)...");
             String result = callHuggingFaceVision(base64Image);
             if (result != null && !result.isEmpty()) return result;
         }
@@ -203,23 +222,23 @@ public class VisionScanService {
                 .timeout(Duration.ofSeconds(60))
                 .build();
 
-            System.out.println("\uD83D\uDCE4 Sending to Groq API (" + GROQ_MODEL + ")...");
+            log.info("\uD83D\uDCE4 Sending to Groq API ({})...", GROQ_MODEL);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("\uD83D\uDCE5 Groq Status: " + response.statusCode());
+            log.info("\uD83D\uDCE5 Groq Status: {}", response.statusCode());
 
             if (response.statusCode() == 200) {
                 String chessData = parseOpenAIStyleResponse(response.body());
                 if (chessData != null && !chessData.isEmpty()) {
-                    System.out.println("\u2705 Groq extracted chess data successfully!");
+                    log.info("\u2705 Groq extracted chess data successfully!");
                     return chessData;
                 }
             } else {
-                System.err.println("\u274C Groq error: " + response.statusCode());
-                System.err.println("Response: " + response.body().substring(0, Math.min(300, response.body().length())));
+                log.error("\u274C Groq error: {}", response.statusCode());
+                log.error("Response: {}", response.body().substring(0, Math.min(300, response.body().length())));
             }
         } catch (Exception e) {
-            System.err.println("\u274C Groq exception: " + e.getMessage());
+            log.error("\u274C Groq exception: {}", e.getMessage());
         }
         return null;
     }
@@ -248,9 +267,9 @@ public class VisionScanService {
                 .timeout(Duration.ofSeconds(60))
                 .build();
 
-            System.out.println("\uD83D\uDCE4 Sending to Gemini API...");
+            log.info("\uD83D\uDCE4 Sending to Gemini API...");
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("\uD83D\uDCE5 Gemini Status: " + response.statusCode());
+            log.info("\uD83D\uDCE5 Gemini Status: {}", response.statusCode());
 
             if (response.statusCode() == 200) {
                 // Parse Gemini response: { candidates: [{ content: { parts: [{ text: "..." }] } }] }
@@ -260,15 +279,15 @@ public class VisionScanService {
                     String content = matcher.group(1)
                         .replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\");
                     content = content.replaceAll("```pgn\\s*", "").replaceAll("```\\s*", "").trim();
-                    System.out.println("\u2705 Gemini extracted chess data!");
+                    log.info("\u2705 Gemini extracted chess data!");
                     return content;
                 }
             } else {
-                System.err.println("\u274C Gemini error: " + response.statusCode());
-                System.err.println("Response: " + response.body().substring(0, Math.min(300, response.body().length())));
+                log.error("\u274C Gemini error: {}", response.statusCode());
+                log.error("Response: {}", response.body().substring(0, Math.min(300, response.body().length())));
             }
         } catch (Exception e) {
-            System.err.println("\u274C Gemini exception: " + e.getMessage());
+            log.error("\u274C Gemini exception: {}", e.getMessage());
         }
         return null;
     }
@@ -296,22 +315,22 @@ public class VisionScanService {
                 .timeout(Duration.ofSeconds(60))
                 .build();
 
-            System.out.println("\uD83D\uDCE4 Sending to HuggingFace API...");
+            log.info("\uD83D\uDCE4 Sending to HuggingFace API...");
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("\uD83D\uDCE5 HuggingFace Status: " + response.statusCode());
+            log.info("\uD83D\uDCE5 HuggingFace Status: {}", response.statusCode());
 
             if (response.statusCode() == 200) {
                 return parseOpenAIStyleResponse(response.body());
             }
 
             if (response.statusCode() == 503) {
-                System.out.println("\u23F3 Model loading, retrying in 5s...");
+                log.info("\u23F3 Model loading, retrying in 5s...");
                 Thread.sleep(5000);
                 HttpResponse<String> retry = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 if (retry.statusCode() == 200) return parseOpenAIStyleResponse(retry.body());
             }
         } catch (Exception e) {
-            System.err.println("\u274C HuggingFace error: " + e.getMessage());
+            log.error("\u274C HuggingFace error: {}", e.getMessage());
         }
         return null;
     }
@@ -343,7 +362,7 @@ public class VisionScanService {
                 return altMatcher.group(1).replace("\\n", "\n").replace("\\\"", "\"").trim();
             }
         } catch (Exception e) {
-            System.err.println("\u274C Error parsing response: " + e.getMessage());
+            log.error("\u274C Error parsing response: {}", e.getMessage());
         }
         return null;
     }
@@ -369,6 +388,9 @@ public class VisionScanService {
 
     /**
      * Convert AI response to proper PGN format
+     */
+    /**
+     * Executes the fenToPGN operation.
      */
     public String fenToPGN(String aiResponse) {
         if (aiResponse == null || aiResponse.isEmpty()) {

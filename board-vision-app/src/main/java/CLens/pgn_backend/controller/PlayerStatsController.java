@@ -48,6 +48,9 @@ public class PlayerStatsController {
     /**
      * Refresh/recalculate statistics
      */
+    /**
+     * Executes the refreshStats operation.
+     */
     @PostMapping("/refresh")
     public ResponseEntity<PlayerStatsDTO> refreshStats() {
         User user = getCurrentUser();

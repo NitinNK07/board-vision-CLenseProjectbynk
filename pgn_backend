@@ -1,0 +1,64 @@
+package CLens.pgn_backend;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = "CLens.pgn_backend")
+@EntityScan(basePackages = "CLens.pgn_backend")
+public class Application {
+    public static void main(String[] args) {
+        // Set TESSDATA_PREFIX for Tesseract to find the trained data files
+        setupTesseractDataPath();
+        SpringApplication.run(Application.class, args);
+    }
+    
+    /**
+     * Set up the TESSDATA_PREFIX environment variable to point to the tessdata directory
+     * This helps Tesseract find the trained data files
+     */
+    private static void setupTesseractDataPath() {
+        try {
+            // Try to get the tessdata directory from the classpath
+            String tessdataPath = getTessDataResourcePath();
+            if (tessdataPath != null) {
+                System.setProperty("tessdata.path", tessdataPath);
+                // Set the TESSDATA_PREFIX environment variable
+                System.setProperty("TESSDATA_PREFIX", tessdataPath);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not set Tesseract data path: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Get the path to the tessdata directory from classpath resources
+     */
+    private static String getTessDataResourcePath() {
+        try {
+            // Get the URL to the tessdata directory in resources
+            java.net.URL resource = Application.class.getClassLoader().getResource("tessdata");
+            if (resource != null) {
+                // Convert to file path
+                Path path = Paths.get(resource.toURI());
+                return path.toString();
+            } else {
+                // Try to find the eng.traineddata file specifically
+                java.net.URL engData = Application.class.getClassLoader().getResource("tessdata/eng.traineddata");
+                if (engData != null) {
+                    Path engPath = Paths.get(engData.toURI());
+                    return engPath.getParent().toString();
+                }
+            }
+        } catch (URISyntaxException e) {
+            System.err.println("Error resolving tessdata path: " + e.getMessage());
+        }
+        return null;
+    }
+}

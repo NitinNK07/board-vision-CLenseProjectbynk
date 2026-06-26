@@ -13,6 +13,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Enterprise implementation of JwtAuthFilter.
+ * Provides core functionality and business logic.
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 

@@ -1,0 +1,69 @@
+SPPU Assignment No. 6 - User Persona Design
+
+Title: Design user persona for the users of selected product / system.
+
+Problem Statement: 
+Design user persona for the users of selected product / system.
+
+Prerequisites: 
+Basic understanding of user experience (UX) design principles, familiarity with the selected product/system (CLens Chess Scanner), and access to user data or research findings.
+
+Software Requirements: 
+Figma Tool
+
+Hardware Requirements: 
+PIV, 2GB RAM, 500GB HDD
+
+Learning Objectives: 
+To identify and categorize key user groups or personas for the selected product/system (CLens Chess Scanner).
+
+Outcomes: 
+Participants will develop user personas that provide a clear and detailed understanding of the selected product/system's target users. These personas will serve as valuable tools for guiding UI/UX design decisions, helping to create user-centered and effective interfaces.
+
+THEORY:
+User personas are fictional representations of different user types or segments, based on real user data and research. They include demographic information, behaviors, goals, pain points, and motivations. Creating user personas is a crucial step in user-centered design as they help design teams empathize with users and make informed design choices. By personifying users, designers can better understand their needs and preferences, ultimately leading to improved product/system usability and user satisfaction.
+
+STEPS INVOLVED:
+
+Detailed User Persona: 
+
+| Attribute | Details |
+|---------------|-------------|
+| Persona Name | Alex Kumar |
+| Age | 32 years |
+| Occupation | Software Engineer & Chess Coach |
+| Location | Pune, Maharashtra |
+| Background | Alex has been playing chess for over 15 years and recently started coaching young chess players. He often finds himself studying chess books, analyzing games from printed materials, and helping students with complex positions. He frequently comes across interesting chess positions in printed books, magazines, and online that he wants to quickly digitize for analysis. |
+| Goals | - Quickly convert chess positions from books, magazines, and other materials to digital format
+- Analyze chess positions using digital tools
+- Share interesting positions with students
+- Build a personal library of chess positions for teaching purposes |
+| Motivations | - Save time in manually entering chess positions
+- Improve teaching effectiveness with digital tools
+- Enhance chess analysis workflow
+- Help students visualize and practice complex positions |
+| Pain Points / Frustrations | - Manually entering chess positions is time-consuming and error-prone
+- Difficulty in transferring positions from physical media to digital platforms
+- Not everyone has access to high-quality scanned chess diagrams
+- Existing tools often don't recognize handwritten or low-quality chess images |
+| Behaviors / Habits | - Regularly researches chess positions and games
+- Takes photos of interesting positions on his phone
+- Uses multiple chess apps for analysis
+- Often shares positions with students via WhatsApp
+- Prefers mobile solutions for convenience |
+| Technical Skills | Intermediate - Comfortable with mobile apps, familiar with chess software, can navigate OCR tools when needed |
+| Devices Used | Android smartphone, laptop, occasionally tablet |
+| User Quote | "I spend hours manually entering chess positions from books. If there was an app that could scan and convert them to digital format automatically, it would save me so much time!" |
+| Needs & Expectations | - Accurate OCR recognition for chess positions
+- Easy image upload functionality
+- Ability to save and organize scanned positions
+- Sharing capabilities
+- Reliable performance across different image qualities
+- User-friendly interface |
+
+Scenarios / Use Cases:
+
+Scenario: Alex is preparing for his next coaching session and comes across an interesting middlegame position in a chess book. He wants to analyze this position with his students using digital tools. He opens the CLens app, selects the image from his gallery, and processes it. The app successfully converts the position to digital format, and Alex can immediately start analyzing the position with his students using chess software. He saves the PGN file and shares it with his students via WhatsApp for further practice.
+
+Conclusion:
+Designing user personas is an essential step in the UI/UX design process. It ensures that designers have a deep understanding of their target audience, allowing them to create interfaces that meet user needs and expectations. The personas serve as valuable reference points throughout the design and development phases, helping to align the entire team around user-centric goals. For the CLens Chess Scanner application, understanding users like Alex Kumar - chess enthusiasts, coaches, and players - who need efficient tools to digitize chess positions, helps in creating features that directly address their pain points of manual entry and complex workflows.

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
-import { Crown, Eye, EyeOff } from 'lucide-react';
+import { Crown, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import FloatingChessPieces from '@/components/ui/FloatingChessPieces';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8082';
@@ -175,7 +175,9 @@ const Signup = () => {
                   autoComplete="name"
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" /> {errors.name}
+                  </p>
                 )}
               </div>
 
@@ -194,7 +196,9 @@ const Signup = () => {
                   autoComplete="email"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" /> {errors.email}
+                  </p>
                 )}
               </div>
 
@@ -223,7 +227,9 @@ const Signup = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" /> {errors.password}
+                  </p>
                 )}
               </div>
 
@@ -244,7 +250,9 @@ const Signup = () => {
                   />
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" /> {errors.confirmPassword}
+                  </p>
                 )}
               </div>
 
@@ -253,8 +261,13 @@ const Signup = () => {
                 disabled={signupMutation.isPending}
                 className="btn-primary w-full text-lg py-3 relative overflow-hidden group"
               >
-                <span className="relative z-10">
-                  {signupMutation.isPending ? 'Creating account...' : 'Create Account'}
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {signupMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : 'Create Account'}
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>

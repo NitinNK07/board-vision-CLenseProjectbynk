@@ -5,6 +5,7 @@ import CLens.pgn_backend.repository.UserRepository;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,6 +19,11 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Enterprise implementation of OtpService.
+ * Provides core functionality and business logic.
+ */
+@Slf4j
 @Service
 public class OtpService {
 
@@ -49,6 +55,12 @@ public class OtpService {
         }
     }
 
+    /**
+
+     * Executes the generateAndSendOtp operation.
+
+     */
+
     public String generateAndSendOtp(String email, String phoneNumber) {
         String otp = String.format("%06d", random.nextInt(1000000)); // 6-digit OTP
 
@@ -68,6 +80,12 @@ public class OtpService {
 
         return otp;
     }
+
+    /**
+
+     * Executes the verifyOtp operation.
+
+     */
 
     public boolean verifyOtp(String email, String phoneNumber, String otp) {
         String key = generateKey(email, phoneNumber);
@@ -103,9 +121,9 @@ public class OtpService {
             helper.setText("Your OTP for CLens verification is: " + otp + "\n\nThis OTP is valid for 5 minutes.");
 
             mailSender.send(message);
-            System.out.println("OTP sent to email: " + email);
+            log.info("OTP sent to email: {}", email);
         } catch (MessagingException e) {
-            System.err.println("Failed to send OTP email to " + email + ": " + e.getMessage());
+            log.error("Failed to send OTP email to {}: {}", email, e.getMessage());
             // In a real app, you might want to log this properly or handle it differently
         }
     }
@@ -122,14 +140,14 @@ public class OtpService {
                         "Your CLens OTP is: " + otp + ". Valid for 5 minutes."
                 ).create();
 
-                System.out.println("OTP sent via SMS to: " + phoneNumber + ", SID: " + message.getSid());
+                log.info("OTP sent via SMS to: {}, SID: {}", phoneNumber, message.getSid());
             } else {
                 // For development purposes without Twilio credentials, log the OTP
-                System.out.println("SMS Service not configured. OTP for " + phoneNumber + " is: " + otp);
+                log.info("SMS Service not configured. OTP for {} is: {}", phoneNumber, otp);
                 // In a real app, you'd want to throw an exception or use an alternative service
             }
         } catch (Exception e) {
-            System.err.println("Failed to send OTP SMS to " + phoneNumber + ": " + e.getMessage());
+            log.error("Failed to send OTP SMS to {}: {}", phoneNumber, e.getMessage());
         }
     }
 

@@ -6,6 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
+/**
+ * Enterprise implementation of GameAnalysisRepository.
+ * Provides core functionality and business logic.
+ */
 public interface GameAnalysisRepository extends JpaRepository<GameAnalysis, Long> {
 
     Optional<GameAnalysis> findByGameId(Long gameId);

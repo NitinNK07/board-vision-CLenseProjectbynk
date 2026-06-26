@@ -5,6 +5,7 @@ import CLens.pgn_backend.dto.SignupRequest;
 import CLens.pgn_backend.entity.User;
 import CLens.pgn_backend.service.UserService;
 import CLens.pgn_backend.security.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -65,38 +67,29 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody AuthRequest req) {
-        try {
-            User u = users.login(req.email(), req.password());
-            
-            // Generate access token (60 minutes)
-            String accessToken = jwt.generateToken(
-                    u.getEmail(),
-                    Map.of("role", u.getRole().name(), "uid", u.getId()),
-                    60L
-            );
-            
-            // Generate refresh token (24 hours)
-            String refreshToken = jwt.generateRefreshToken(u.getEmail());
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login successful");
-            response.put("accessToken", accessToken);
-            response.put("refreshToken", refreshToken);
-            response.put("user", Map.of(
-                "id", u.getId(),
-                "name", u.getName(),
-                "email", u.getEmail(),
-                "role", u.getRole().name()
-            ));
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "Login failed: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
+        User u = users.login(req.email(), req.password());
+        
+        // Generate access token (60 minutes)
+        String accessToken = jwt.generateToken(
+                u.getEmail(),
+                Map.of("role", u.getRole().name(), "uid", u.getId()),
+                60L
+        );
+        
+        // Generate refresh token (24 hours)
+        String refreshToken = jwt.generateRefreshToken(u.getEmail());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("accessToken", accessToken);
+        response.put("refreshToken", refreshToken);
+        response.put("user", Map.of(
+            "id", u.getId(),
+            "name", u.getName(),
+            "email", u.getEmail(),
+            "role", u.getRole().name()
+        ));
+        return ResponseEntity.ok(response);
     }
     
     /**

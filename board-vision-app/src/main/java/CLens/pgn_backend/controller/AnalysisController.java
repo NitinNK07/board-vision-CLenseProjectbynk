@@ -24,13 +24,13 @@ import java.util.Optional;
 // CORS handled globally by SecurityConfig — do NOT add @CrossOrigin here
 public class AnalysisController {
     
-    private final StockfishAnalysisService analysisService;
+    private final HeuristicAnalysisService analysisService;
     private final ChessGameService gameService;
     private final GameAnalysisRepository analysisRepository;
     private final PlayerStatisticsService statsService;
     private final UserService userService;
     
-    public AnalysisController(StockfishAnalysisService analysisService,
+    public AnalysisController(HeuristicAnalysisService analysisService,
                             ChessGameService gameService,
                             GameAnalysisRepository analysisRepository,
                             PlayerStatisticsService statsService,
@@ -44,6 +44,9 @@ public class AnalysisController {
     
     /**
      * Analyze a game by ID
+     */
+    /**
+     * Executes the analyzeGame operation.
      */
     @PostMapping("/game/{gameId}")
     public ResponseEntity<GameAnalysisDTO> analyzeGame(@PathVariable Long gameId) {
@@ -110,6 +113,9 @@ public class AnalysisController {
     
     /**
      * Analyze PGN directly (without saving game)
+     */
+    /**
+     * Executes the analyzePgn operation.
      */
     @PostMapping("/pgn")
     public ResponseEntity<GameAnalysisDTO> analyzePgn(@RequestBody String pgn) {

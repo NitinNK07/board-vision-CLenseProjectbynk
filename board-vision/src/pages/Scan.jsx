@@ -173,9 +173,9 @@ const Scan = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Scan Chess Position</h1>
+          <h1 className="text-4xl font-bold mb-4">Scan Chess Scoresheet</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Upload an image of a chess board and we'll convert it to PGN
+            Upload an image of your handwritten scoresheet and we'll convert it to PGN
           </p>
           {/* AI Vision Mode Toggle */}
           <div className="mt-4 flex items-center justify-center gap-4">
@@ -194,7 +194,7 @@ const Scan = () => {
           </div>
           {scanMode === 'vision' && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Powered by HuggingFace Qwen2.5-VL • 99% accuracy on chess positions
+              Powered by Groq Vision LLM • Llama-3.2-90b-vision-preview
             </p>
           )}
         </div>

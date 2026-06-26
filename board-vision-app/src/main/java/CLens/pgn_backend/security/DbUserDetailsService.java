@@ -8,12 +8,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Enterprise implementation of DbUserDetailsService.
+ * Provides core functionality and business logic.
+ */
 @Service
 public class DbUserDetailsService implements UserDetailsService {
 
     private final UserRepository repo;
 
     public DbUserDetailsService(UserRepository repo) { this.repo = repo; }
+
+    /**
+
+     * Executes the loadUserByUsername operation.
+
+     */
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

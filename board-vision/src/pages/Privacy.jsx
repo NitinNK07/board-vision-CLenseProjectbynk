@@ -11,11 +11,11 @@ const Privacy = () => (
 
       <div className="card p-8 space-y-8">
         {[
-          { icon: <Eye className="w-5 h-5" />, title: 'Information We Collect', content: 'We collect your name, email address, and password when you create an account. When you upload chess scoresheet images for scanning, the images are processed by our AI service and are not stored permanently.' },
-          { icon: <Database className="w-5 h-5" />, title: 'How We Use Your Data', content: 'Your account information is used solely for authentication. Game data (PGN files, analysis results) is stored in our database to provide you with game history, statistics, and analysis features. We do not sell or share your personal data with third parties.' },
-          { icon: <Lock className="w-5 h-5" />, title: 'Data Security', content: 'We use JWT-based authentication and bcrypt password hashing. All API communications use secure protocols. Your uploaded images are processed in memory and deleted after scanning.' },
-          { icon: <UserCheck className="w-5 h-5" />, title: 'Your Rights', content: 'You can access, modify, or delete your account data at any time through your profile settings. You can export your games as PGN files. Contact us at nitinkolhe2004@gmail.com for data requests.' },
-          { icon: <Bell className="w-5 h-5" />, title: 'Updates', content: 'We may update this Privacy Policy from time to time. We will notify you of any significant changes via email or in-app notification.' },
+          { icon: <Eye className="w-5 h-5" />, title: 'Information We Collect', content: 'When you register for CLens, we collect basic profile details (name, email) and securely hash your password. For our core feature, we temporarily receive the chess scoresheet images you upload for AI Vision scanning.' },
+          { icon: <Database className="w-5 h-5" />, title: 'How We Process Data', content: 'Your scoresheet images are transmitted securely to the Groq Vision LLM API (Llama-3.2) for transcription into PGN format. These physical images are NOT permanently stored on our servers; they are processed in-memory and discarded. Only the resulting PGN text and heuristic analysis metrics are saved to your account.' },
+          { icon: <Lock className="w-5 h-5" />, title: 'Data Security', content: 'We secure your session using enterprise-grade JWT (JSON Web Tokens) authentication and encrypt passwords with BCrypt. All API interactions with the database (PostgreSQL) and LLM providers are conducted over secure, encrypted channels.' },
+          { icon: <UserCheck className="w-5 h-5" />, title: 'Your Rights', content: 'You have full control over your digitized games. You can delete individual games from your history, export your PGN data at any time, or request complete account deletion by contacting nitinkolhe2004@gmail.com.' },
+          { icon: <Bell className="w-5 h-5" />, title: 'Updates', content: 'As the CLens project evolves (e.g., adding new Vision models), this policy may be updated. Significant changes regarding image handling or data privacy will be communicated via your registered email.' },
         ].map((s, i) => (
           <div key={i} className="flex gap-4">
             <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center">

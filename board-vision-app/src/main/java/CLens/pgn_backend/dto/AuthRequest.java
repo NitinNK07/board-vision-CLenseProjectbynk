@@ -4,6 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Enterprise implementation of AuthRequest.
+ * Provides core functionality and business logic.
+ */
 public record AuthRequest(
         @Email(message = "Email should be valid")
         @NotBlank(message = "Email cannot be blank")

@@ -2,10 +2,15 @@ package CLens.pgn_backend.controller;
 
 import CLens.pgn_backend.entity.User;
 import CLens.pgn_backend.entity.ChessGame;
+import CLens.pgn_backend.dto.MoveError;
+import CLens.pgn_backend.dto.PgnValidationResult;
 import CLens.pgn_backend.service.VisionScanService;
+import CLens.pgn_backend.service.PgnValidationService;
+import CLens.pgn_backend.service.PgnCorrectionService;
 import CLens.pgn_backend.service.ScanService;
 import CLens.pgn_backend.service.UserService;
 import CLens.pgn_backend.service.ChessGameService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,25 +18,33 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/scan")
 // CORS handled globally by SecurityConfig
 public class VisionScanController {
 
     private final VisionScanService visionService;
+    private final PgnValidationService validationService;
+    private final PgnCorrectionService correctionService;
     private final ScanService scanService;
     private final UserService userService;
     private final ChessGameService gameService;
 
     public VisionScanController(VisionScanService visionService,
-                               ScanService scanService,
-                               UserService userService,
-                               ChessGameService gameService) {
+                                PgnValidationService validationService,
+                                PgnCorrectionService correctionService,
+                                ScanService scanService,
+                                UserService userService,
+                                ChessGameService gameService) {
         this.visionService = visionService;
+        this.validationService = validationService;
+        this.correctionService = correctionService;
         this.scanService = scanService;
         this.userService = userService;
         this.gameService = gameService;
@@ -45,19 +58,19 @@ public class VisionScanController {
      */
     @PostMapping("/vision")
     public ResponseEntity<?> scanWithVision(@RequestParam("image") MultipartFile image) {
-        System.out.println("========== CONTROLLER: VISION SCAN REQUEST RECEIVED ==========");
+        log.info("========== CONTROLLER: VISION SCAN REQUEST RECEIVED ==========");
 
         try {
             User user = currentUser();
-            System.out.println("👤 User: " + user.getEmail());
+            log.info("👤 User: {}", user.getEmail());
 
             // Check if user has scans remaining
             ScanService.Allowance allowance = scanService.getAllowance(user);
             long totalScans = allowance.trialRemainingToday() + allowance.adCredits() + allowance.paidCredits();
-            System.out.println("📊 User scans: " + totalScans);
+            log.info("📊 User scans: {}", totalScans);
 
             if (totalScans <= 0) {
-                System.out.println("❌ No scans remaining");
+                log.warn("❌ No scans remaining");
                 return ResponseEntity.status(403).body(Map.of(
                     "success", false,
                     "message", "No scans remaining. Watch an ad to earn more!"
@@ -66,30 +79,30 @@ public class VisionScanController {
 
             // Validate image
             if (image.isEmpty()) {
-                System.out.println("❌ Image file is empty");
+                log.warn("❌ Image file is empty");
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "Image file cannot be empty"
                 ));
             }
 
-            System.out.println("📸 Received file: " + image.getOriginalFilename());
-            System.out.println("📊 File size: " + image.getSize() + " bytes");
-            System.out.println("📄 Content type: " + image.getContentType());
+            log.info("📸 Received file: {}", image.getOriginalFilename());
+            log.info("📊 File size: {} bytes", image.getSize());
+            log.info("📄 Content type: {}", image.getContentType());
 
             // Consume one scan
             scanService.consumeOne(user);
-            System.out.println("✅ Scan consumed");
+            log.info("✅ Scan consumed");
 
-            // Extract chess data using Vision AI (Gemini primary, HuggingFace fallback)
-            System.out.println("🔄 Calling Vision AI with file...");
+            // Extract chess data using Vision AI
+            log.info("🔄 Calling Vision AI with file...");
             String fen = visionService.extractFENFromImage(image);
-            System.out.println("🔙 Vision AI returned: " + fen.substring(0, Math.min(100, fen.length())));
+            log.info("🔙 Vision AI returned: {}", fen.substring(0, Math.min(100, fen.length())));
 
             // Convert FEN/moves to PGN format
-            System.out.println("🔄 Converting to PGN...");
+            log.info("🔄 Converting to PGN...");
             String pgn = visionService.fenToPGN(fen);
-            System.out.println("📄 PGN generated: " + pgn.substring(0, Math.min(100, pgn.length())));
+            log.info("📄 PGN generated: {}", pgn.substring(0, Math.min(100, pgn.length())));
 
             // DON'T auto-save — return PGN for user confirmation/editing first
             Map<String, Object> response = new HashMap<>();
@@ -99,6 +112,30 @@ public class VisionScanController {
             response.put("message", "Position scanned successfully! Review and confirm below.");
             response.put("gameSaved", false);
 
+            // Validate PGN using ChessLib
+            PgnValidationResult validation = validationService.validatePgn(pgn);
+            response.put("validationPassed", validation.isFullyValid());
+            response.put("validationStatus", validation.status().name());
+            response.put("moveAccuracy", validation.moveAccuracy());
+            response.put("totalMoves", validation.totalMoves());
+            response.put("validMoves", validation.validMoves());
+
+            if (!validation.isFullyValid()) {
+                // Get correction suggestions for illegal moves
+                List<MoveError> enrichedErrors = correctionService.suggestCorrections(validation);
+                response.put("validationErrors", enrichedErrors.stream().map(e -> Map.of(
+                    "moveNumber", e.moveNumber(),
+                    "move", e.moveSan(),
+                    "errorType", e.errorType().name(),
+                    "message", e.message(),
+                    "suggestions", e.legalAlternatives()
+                )).collect(Collectors.toList()));
+            }
+
+            if (!validation.warnings().isEmpty()) {
+                response.put("validationWarnings", validation.warnings());
+            }
+
             // Include updated allowance
             ScanService.Allowance updatedAllowance = scanService.getAllowance(user);
             response.put("allowance", Map.of(
@@ -107,13 +144,12 @@ public class VisionScanController {
                 "paidCredits", updatedAllowance.paidCredits()
             ));
 
-            System.out.println("========== CONTROLLER: SCAN COMPLETE ==========");
+            log.info("========== CONTROLLER: SCAN COMPLETE ==========");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("❌ Vision scan error: " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("========== CONTROLLER: SCAN FAILED ==========");
+            log.error("❌ Vision scan error", e);
+            log.error("========== CONTROLLER: SCAN FAILED ==========");
 
             return ResponseEntity.internalServerError().body(Map.of(
                 "success", false,
@@ -129,19 +165,19 @@ public class VisionScanController {
      */
     @PostMapping("/vision/base64")
     public ResponseEntity<?> scanWithVisionBase64(@RequestBody Map<String, String> request) {
-        System.out.println("========== CONTROLLER: VISION SCAN REQUEST RECEIVED ==========");
+        log.info("========== CONTROLLER: VISION SCAN REQUEST RECEIVED ==========");
 
         try {
             User user = currentUser();
-            System.out.println("👤 User: " + user.getEmail());
+            log.info("👤 User: {}", user.getEmail());
 
             // Check if user has scans remaining
             ScanService.Allowance allowance = scanService.getAllowance(user);
             long totalScans = allowance.trialRemainingToday() + allowance.adCredits() + allowance.paidCredits();
-            System.out.println("📊 User scans: " + totalScans);
+            log.info("📊 User scans: {}", totalScans);
 
             if (totalScans <= 0) {
-                System.out.println("❌ No scans remaining");
+                log.warn("❌ No scans remaining");
                 return ResponseEntity.status(403).body(Map.of(
                     "success", false,
                     "message", "No scans remaining. Watch an ad to earn more!"
@@ -150,10 +186,10 @@ public class VisionScanController {
 
             // Validate image data
             String base64Image = request.get("imageBase64");
-            System.out.println("📸 Received image (base64 length): " + (base64Image != null ? base64Image.length() : "null"));
+            log.info("📸 Received image (base64 length): {}", (base64Image != null ? base64Image.length() : "null"));
 
             if (base64Image == null || base64Image.trim().isEmpty()) {
-                System.out.println("❌ Image data is empty");
+                log.warn("❌ Image data is empty");
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "Image data cannot be empty"
@@ -162,25 +198,30 @@ public class VisionScanController {
 
             // Consume one scan
             scanService.consumeOne(user);
-            System.out.println("✅ Scan consumed");
+            log.info("✅ Scan consumed");
 
             // Extract FEN using Vision API
-            System.out.println("🔄 Calling Vision AI service...");
+            log.info("🔄 Calling Vision AI service...");
             String fen = visionService.extractFENFromImage(base64Image);
-            System.out.println("🔙 Vision AI returned: " + fen.substring(0, Math.min(100, fen.length())));
+            log.info("🔙 Vision AI returned: {}", fen.substring(0, Math.min(100, fen.length())));
 
             // Convert FEN to PGN format
-            System.out.println("🔄 Converting to PGN...");
+            log.info("🔄 Converting to PGN...");
             String pgn = visionService.fenToPGN(fen);
-            System.out.println("📄 PGN generated: " + pgn.substring(0, Math.min(100, pgn.length())));
+            log.info("📄 PGN generated: {}", pgn.substring(0, Math.min(100, pgn.length())));
 
-            // Save game to database for history tracking
+            // Validate PGN using ChessLib
+            log.info("🔍 Validating PGN with ChessLib...");
+            PgnValidationResult validation = validationService.validatePgn(pgn);
+            log.info("✅ Validation: {} | Accuracy: {}%", validation.status(), validation.moveAccuracy());
+
+            // Save game to database for history tracking (with validation status)
             ChessGame savedGame = null;
             try {
-                savedGame = saveGameToDatabase(user, pgn, fen, "SCAN");
-                System.out.println("💾 Game saved to database with ID: " + savedGame.getId());
+                savedGame = saveGameToDatabase(user, pgn, fen, "SCAN", validation);
+                log.info("💾 Game saved to database with ID: {}", savedGame.getId());
             } catch (Exception e) {
-                System.err.println("⚠️ Failed to save game to database: " + e.getMessage());
+                log.warn("⚠️ Failed to save game to database", e);
                 // Continue anyway - don't fail the whole request if save fails
             }
 
@@ -189,6 +230,28 @@ public class VisionScanController {
             response.put("fen", fen);
             response.put("pgn", pgn);
             response.put("message", "Position scanned successfully!");
+
+            // Validation details
+            response.put("validationPassed", validation.isFullyValid());
+            response.put("validationStatus", validation.status().name());
+            response.put("moveAccuracy", validation.moveAccuracy());
+            response.put("totalMoves", validation.totalMoves());
+            response.put("validMoves", validation.validMoves());
+
+            if (!validation.isFullyValid()) {
+                List<MoveError> enrichedErrors = correctionService.suggestCorrections(validation);
+                response.put("validationErrors", enrichedErrors.stream().map(e -> Map.of(
+                    "moveNumber", e.moveNumber(),
+                    "move", e.moveSan(),
+                    "errorType", e.errorType().name(),
+                    "message", e.message(),
+                    "suggestions", e.legalAlternatives()
+                )).collect(Collectors.toList()));
+            }
+
+            if (!validation.warnings().isEmpty()) {
+                response.put("validationWarnings", validation.warnings());
+            }
             
             // Include game ID if saved
             if (savedGame != null) {
@@ -199,7 +262,7 @@ public class VisionScanController {
                 response.put("gameSaveError", "Failed to save game to database");
             }
             
-            System.out.println("✅ Sending response to frontend");
+            log.info("✅ Sending response to frontend");
 
             // Include updated allowance
             ScanService.Allowance updatedAllowance = scanService.getAllowance(user);
@@ -209,13 +272,12 @@ public class VisionScanController {
                 "paidCredits", updatedAllowance.paidCredits()
             ));
 
-            System.out.println("========== CONTROLLER: SCAN COMPLETE ==========");
+            log.info("========== CONTROLLER: SCAN COMPLETE ==========");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("❌ Vision scan error: " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("========== CONTROLLER: SCAN FAILED ==========");
+            log.error("❌ Vision scan error", e);
+            log.error("========== CONTROLLER: SCAN FAILED ==========");
 
             return ResponseEntity.internalServerError().body(Map.of(
                 "success", false,
@@ -225,9 +287,9 @@ public class VisionScanController {
     }
     
     /**
-     * Helper method to save scanned game to database
+     * Helper method to save scanned game to database (with validation status)
      */
-    private ChessGame saveGameToDatabase(User user, String pgn, String fen, String source) {
+    private ChessGame saveGameToDatabase(User user, String pgn, String fen, String source, PgnValidationResult validation) {
         ChessGame game = new ChessGame();
         game.setPlayer(user);
         game.setPgnContent(pgn);
@@ -236,6 +298,27 @@ public class VisionScanController {
         game.setGameDate(LocalDate.now());
         game.setSite("CLens AI Vision");
         game.setEvent("Scanned Game");
+        game.setTotalMoves(validation != null ? validation.totalMoves() : null);
+        
+        // Store validation status
+        if (validation != null) {
+            game.setValidationPassed(validation.isFullyValid());
+            if (!validation.errors().isEmpty()) {
+                // Serialize errors as simple JSON string
+                StringBuilder errJson = new StringBuilder("[");
+                for (int i = 0; i < validation.errors().size(); i++) {
+                    MoveError e = validation.errors().get(i);
+                    if (i > 0) errJson.append(",");
+                    errJson.append(String.format(
+                        "{\"moveNumber\":%d,\"move\":\"%s\",\"type\":\"%s\",\"message\":\"%s\"}",
+                        e.moveNumber(), e.moveSan(), e.errorType().name(),
+                        e.message().replace("\"", "\\\"")
+                    ));
+                }
+                errJson.append("]");
+                game.setValidationErrors(errJson.toString());
+            }
+        }
         
         // Try to extract result from PGN
         if (pgn.contains("1-0")) {
@@ -276,7 +359,10 @@ public class VisionScanController {
                 ));
             }
 
-            ChessGame savedGame = saveGameToDatabase(user, pgn, fen, "SCAN");
+            // Validate the (potentially edited) PGN before saving
+            PgnValidationResult validation = validationService.validatePgn(pgn);
+
+            ChessGame savedGame = saveGameToDatabase(user, pgn, fen, "SCAN", validation);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,

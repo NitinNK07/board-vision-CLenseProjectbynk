@@ -8,6 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
+/**
+ * Enterprise implementation of PlayerStatisticsRepository.
+ * Provides core functionality and business logic.
+ */
 public interface PlayerStatisticsRepository extends JpaRepository<PlayerStatistics, Long> {
     
     Optional<PlayerStatistics> findByPlayerId(Long playerId);

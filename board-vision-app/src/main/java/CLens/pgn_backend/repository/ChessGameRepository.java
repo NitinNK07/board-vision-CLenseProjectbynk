@@ -10,6 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Enterprise implementation of ChessGameRepository.
+ * Provides core functionality and business logic.
+ */
 public interface ChessGameRepository extends JpaRepository<ChessGame, Long> {
     
     Page<ChessGame> findByPlayerId(Long playerId, Pageable pageable);

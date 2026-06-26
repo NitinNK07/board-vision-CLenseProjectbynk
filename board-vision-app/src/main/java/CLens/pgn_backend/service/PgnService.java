@@ -5,8 +5,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
+/**
+ * Enterprise implementation of PgnService.
+ * Provides core functionality and business logic.
+ */
 @Service
 public class PgnService {
+
+    /**
+
+     * Executes the parseAndValidate operation.
+
+     */
 
     public PgnResult parseAndValidate(String rawText) {
         // Basic validation for PGN format

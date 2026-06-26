@@ -1,4 +1,3 @@
-
 package CLens.pgn_backend.controller;
 
 import CLens.pgn_backend.service.*;
@@ -6,6 +5,7 @@ import CLens.pgn_backend.entity.*;
 import CLens.pgn_backend.repository.*;
 import CLens.pgn_backend.dto.*;
 import CLens.pgn_backend.enums.Role;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/fide")
 // CORS handled globally by SecurityConfig
@@ -33,7 +34,7 @@ public class FideController {
     @GetMapping("/player/{fideId}")
     public ResponseEntity<?> getFidePlayer(@PathVariable String fideId) {
         try {
-            System.out.println("Fetching FIDE data for player: " + fideId);
+            log.info("Fetching FIDE data for player: {}", fideId);
             
             // Always return fallback with profile URL since FIDE blocks automated access
             Map<String, Object> responseData = new HashMap<>();
@@ -44,12 +45,11 @@ public class FideController {
             responseData.put("requiresManualEntry", true);
             responseData.put("message", "FIDE blocks automated access. Profile opened for manual entry.");
             
-            System.out.println("Returning fallback data for FIDE ID: " + fideId);
+            log.info("Returning fallback data for FIDE ID: {}", fideId);
             return ResponseEntity.ok(responseData);
             
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error: {}", e.getMessage(), e);
             
             Map<String, Object> errorData = new HashMap<>();
             errorData.put("fideId", fideId);

@@ -33,6 +33,12 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
+    /**
+
+     * Executes the corsConfigurationSource operation.
+
+     */
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -60,6 +66,12 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+
+     * Executes the authProvider operation.
+
+     */
+
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider p = new DaoAuthenticationProvider();
@@ -68,10 +80,22 @@ public class SecurityConfig {
         return p;
     }
 
+    /**
+
+     * Executes the authenticationManager operation.
+
+     */
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
         return cfg.getAuthenticationManager();
     }
+
+    /**
+
+     * Executes the filterChain operation.
+
+     */
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

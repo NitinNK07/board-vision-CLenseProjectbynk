@@ -42,6 +42,9 @@ public class PlayerStatisticsService {
     /**
      * Recalculate all statistics for a player based on their games
      */
+    /**
+     * Executes the recalculateStats operation.
+     */
     public PlayerStatistics recalculateStats(User player) {
         List<ChessGame> games = gameRepository.findByPlayerIdOrderByCreatedAtDesc(player.getId());
         

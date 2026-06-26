@@ -1,5 +1,6 @@
 package CLens.pgn_backend.exceptionHandler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,11 +12,34 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
+     * Handle OCR provider failures — all AI vision providers are unavailable.
+     * Returns HTTP 503 Service Unavailable.
+     */
+    /**
+     * Executes the handleOcrException operation.
+     */
+    @ExceptionHandler(OcrException.class)
+    public ResponseEntity<Object> handleOcrException(OcrException ex, WebRequest request) {
+        Map<String, Object> body = createErrorBody(
+            "OCR Service Unavailable",
+            ex.getMessage(),
+            HttpStatus.SERVICE_UNAVAILABLE.value(),
+            request.getDescription(false)
+        );
+        body.put("success", false);
+        return new ResponseEntity<>(body, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    /**
      * Handle duplicate email/phone registration
+     */
+    /**
+     * Executes the handleIllegalArgument operation.
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
@@ -39,6 +63,9 @@ public class GlobalExceptionHandler {
     /**
      * Handle illegal state exceptions
      */
+    /**
+     * Executes the handleIllegalState operation.
+     */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Object> handleIllegalState(IllegalStateException ex, WebRequest request) {
         Map<String, Object> body = createErrorBody("Validation failed", ex.getMessage(), HttpStatus.BAD_REQUEST.value(), request.getDescription(false));
@@ -47,6 +74,9 @@ public class GlobalExceptionHandler {
 
     /**
      * Handle bad credentials (login failures)
+     */
+    /**
+     * Executes the handleBadCredentials operation.
      */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
@@ -57,13 +87,15 @@ public class GlobalExceptionHandler {
     /**
      * Handle runtime exceptions
      */
+    /**
+     * Executes the handleRuntime operation.
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntime(RuntimeException ex, WebRequest request) {
         Map<String, Object> body = createErrorBody("Internal server error", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), request.getDescription(false));
 
-        // Log the exception for debugging (in real app, use proper logging)
-        System.err.println("Runtime exception: " + ex.getMessage());
-        ex.printStackTrace();
+        // Log the exception for debugging
+        log.error("Runtime exception: {}", ex.getMessage(), ex);
 
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -71,13 +103,15 @@ public class GlobalExceptionHandler {
     /**
      * Handle general exceptions
      */
+    /**
+     * Executes the handleGeneral operation.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneral(Exception ex, WebRequest request) {
         Map<String, Object> body = createErrorBody("Unexpected error", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), request.getDescription(false));
 
         // Log the exception for debugging
-        System.err.println("General exception: " + ex.getMessage());
-        ex.printStackTrace();
+        log.error("General exception: {}", ex.getMessage(), ex);
 
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }

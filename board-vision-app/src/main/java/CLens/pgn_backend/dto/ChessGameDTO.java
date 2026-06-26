@@ -77,6 +77,9 @@ public class ChessGameDTO {
     /**
      * Validate that Elo ratings are consistent with each other
      */
+    /**
+     * Executes the isValidEloRange operation.
+     */
     public boolean isValidEloRange() {
         if (whiteElo != null && blackElo != null) {
             int diff = Math.abs(whiteElo - blackElo);

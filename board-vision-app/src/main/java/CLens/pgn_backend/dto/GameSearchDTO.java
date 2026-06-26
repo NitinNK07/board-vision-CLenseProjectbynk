@@ -58,6 +58,9 @@ public class GameSearchDTO {
     /**
      * Validate that dateFrom is before dateTo
      */
+    /**
+     * Executes the isValidDateRange operation.
+     */
     public boolean isValidDateRange() {
         if (dateFrom != null && dateTo != null) {
             return !dateFrom.isAfter(dateTo);
@@ -67,6 +70,9 @@ public class GameSearchDTO {
     
     /**
      * Validate that minAccuracy is not greater than maxAccuracy
+     */
+    /**
+     * Executes the isValidAccuracyRange operation.
      */
     public boolean isValidAccuracyRange() {
         if (minAccuracy != null && maxAccuracy != null) {

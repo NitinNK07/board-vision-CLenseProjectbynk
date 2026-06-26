@@ -36,6 +36,9 @@ public class ChessGameService {
     /**
      * Save a new chess game from scan
      */
+    /**
+     * Executes the saveGame operation.
+     */
     public ChessGame saveGame(ChessGame game) {
         return gameRepository.save(game);
     }
@@ -68,6 +71,9 @@ public class ChessGameService {
     /**
      * Search games with filters
      */
+    /**
+     * Executes the searchGames operation.
+     */
     @Transactional(readOnly = true)
     public Page<ChessGame> searchGames(GameSearchDTO search, Long playerId) {
         Pageable pageable = createPageable(search);
@@ -97,6 +103,9 @@ public class ChessGameService {
     /**
      * Update game visibility
      */
+    /**
+     * Executes the updateGameVisibility operation.
+     */
     public ChessGame updateGameVisibility(Long gameId, Boolean isPublic) {
         ChessGame game = gameRepository.findById(gameId)
             .orElseThrow(() -> new RuntimeException("Game not found"));
@@ -106,6 +115,9 @@ public class ChessGameService {
     
     /**
      * Delete a game
+     */
+    /**
+     * Executes the deleteGame operation.
      */
     public void deleteGame(Long gameId) {
         gameRepository.deleteById(gameId);
